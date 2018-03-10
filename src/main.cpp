@@ -8,17 +8,14 @@ Role: Simple code to read contrast values from
 
 Publication: March 10th, 2018
 */
-#include "Cosa/OutputPin.hh"
-#include "Cosa/InputPin.hh"
+#include "BKT0005.h"
 #include "Cosa/Watchdog.hh"
-#include "Cosa/AnalogPin.hh"
 #include "Cosa/Trace.hh"
 #include "Cosa/UART.hh"
 
-void readBalluffPhotoelectric();
+using namespace wlp;
 
-AnalogPin analogPin(Board::A8);
-InputPin pnpPin(Board::D24);
+BKT0005 contrast_sensor(Board::A8, Board::D24);
 
 void setup() {
 	uart.begin(9600);
@@ -27,14 +24,9 @@ void setup() {
 }
 
 void loop() {
-	readBalluffPhotoelectric();
+	contrast_sensor.begin();
+	trace << "Contrast: " << contrast_sensor.read_contrast() << endl;
+	contrast_sensor.sleep();
+	trace << "Wiring in PNP: " << contrast_sensor.read_pnp() << endl;
 	Watchdog::delay(2000);
-}
-
-void readBalluffPhotoelectric()
-{
-	analogPin.powerup();
-	trace << "Contrast: " << analogPin.sample() << endl;
-	analogPin.powerdown();
-	trace << "Wiring in PNP: " << pnpPin.is_on() << endl;
 }
